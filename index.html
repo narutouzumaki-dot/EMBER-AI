@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050505">
+<title>EMBER AI | Kurama Assistant</title>
+
+<style>
+:root {
+  --bg: #050505;
+  --panel: #101010;
+  --red: #ff2a1f;
+  --crimson: #8b0000;
+  --orange: #ff5a1f;
+  --white: #ffffff;
+  --muted: #999999;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--white);
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+button, input { font: inherit; }
+
+button {
+  cursor: pointer;
+  color: white;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 205px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sidebar {
+  padding: 22px 14px;
+  background: #090909;
+  border-right: 1px solid #351010;
+}
+
+.logo {
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--red);
+  text-shadow: 0 0 15px #ff2a1f66;
+  margin-bottom: 35px;
+}
+
+.logo small {
+  display: block;
+  color: #888;
+  font-size: 10px;
+  letter-spacing: 4px;
+  margin-top: 6px;
+}
+
+.nav {
+  width: 100%;
+  display: block;
+  text-align: left;
+  padding: 13px;
+  margin: 5px 0;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #aaa;
+}
+
+.nav.active, .nav:hover {
+  background: #260b0b;
+  color: white;
+  border-color: #641313;
+}
+
+main { min-width: 0; }
+
+header {
+  height: 68px;
+  padding: 0 24px;
+  border-bottom: 1px solid #251010;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.status {
+  color: #ff716a;
+  font-size: 12px;
+}
+
+.content {
+  max-width: 1100px;
+  margin: auto;
+  padding: 28px 24px 100px;
+}
+
+.section { display: none; }
+.section.active { display: block; }
+
+h1 { font-size: clamp(24px, 4vw, 38px); }
+
+.muted { color: var(--muted); line-height: 1.6; }
+
+.hero {
+  text-align: center;
+  padding: 15px 0 24px;
+}
+
+.eyes {
+  width: 250px;
+  height: 120px;
+  margin: 15px auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+.eyes::before {
+  content: "";
+  position: absolute;
+  inset: 15px 0;
+  border: 1px solid #ff2a1f55;
+  border-radius: 50%;
+  box-shadow: 0 0 35px #ff2a1f22;
+  animation: ring 5s linear infinite;
+}
+
+.eye {
+  width: 90px;
+  height: 43px;
+  background: #100303;
+  border: 2px solid var(--red);
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: 0 0 20px #ff2a1f99, inset 0 0 20px #8b0000;
+  position: relative;
+  overflow: hidden;
+  transform: skewY(-8deg);
+}
+
+.eye::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--red);
+  border-radius: 50%;
+  top: 10px;
+  left: 34px;
+  box-shadow: 0 0 18px var(--orange);
+  animation: pupil 3s infinite;
+}
+
+.eye::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  height: 28px;
+  background: #fff;
+  left: 42px;
+  top: 5px;
+  box-shadow: 0 0 10px white;
+}
+
+@keyframes breathe {
+  50% { transform: scale(1.06); }
+}
+
+@keyframes ring {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pupil {
+  0%, 42%, 48%, 100% { transform: scaleY(1); }
+  45% { transform: scaleY(.1); }
+}
+
+.subtitle {
+  color: var(--orange);
+  font-size: 12px;
+  letter-spacing: 4px;
+}
+
+.panel {
+  background: linear-gradient(145deg, #151010, #090909);
+  border: 1px solid #431414;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+.voice-area { text-align: center; }
+
+.mic {
+  width: 82px;
+  height: 82px;
+  border: 2px solid var(--red);
+  border-radius: 50%;
+  background: radial-gradient(circle, #63100d, #160606);
+  box-shadow: 0 0 25px #ff2a1f44;
+  font-size: 30px;
+  transition: .2s;
+}
+
+.mic.listening {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 45px #ff2a1f;
+    transform: scale(1.06);
+  }
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.action {
+  padding: 17px 10px;
+  border: 1px solid #361414;
+  border-radius: 12px;
+  background: #100c0c;
+  text-align: left;
+}
+
+.action:hover {
+  border-color: var(--red);
+  background: #210909;
+}
+
+.action span {
+  display: block;
+  font-size: 23px;
+  margin-bottom: 12px;
+}
+
+.action small {
+  display: block;
+  color: #999;
+  margin-top: 7px;
+  line-height: 1.4;
+}
+
+.chat-log {
+  height: 240px;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.message {
+  padding: 12px;
+  margin: 9px 0;
+  border-radius: 9px;
+  background: #191010;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.message.user { border-left: 3px solid var(--orange); }
+.message.ai { border-left: 3px solid var(--red); }
+
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+
+input {
+  min-width: 0;
+  flex: 1;
+  padding: 13px;
+  border: 1px solid #4a2020;
+  border-radius: 8px;
+  background: #080808;
+  color: white;
+  outline: none;
+}
+
+input:focus { border-color: var(--red); }
+
+.primary {
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(120deg, #8b0000, #ff2a1f);
+  font-weight: bold;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+footer {
+  text-align: center;
+  color: #666;
+  font-size: 11px;
+  padding: 25px 0;
+}
+
+.bottom-nav { display: none; }
+
+@media (max-width: 650px) {
+  .app { display: block; }
+  .sidebar { display: none; }
+  header { padding: 0 16px; }
+  .content { padding: 20px 14px 100px; }
+  .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cards { grid-template-columns: 1fr; }
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #090909f5;
+    border-top: 1px solid #431414;
+    justify-content: space-around;
+    padding: 10px 3px calc(10px + env(safe-area-inset-bottom));
+    z-index: 10;
+  }
+  .bottom-nav button {
+    background: transparent;
+    border: 0;
+    color: #aaa;
+    font-size: 11px;
+  }
+  .bottom-nav button span {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">EMBER<small>KURAMA INTELLIGENCE</small></div>
+    <button class="nav active" data-page="home">⌂ &nbsp; Home</button>
+    <button class="nav" data-page="chat">◈ &nbsp; AI Chat</button>
+    <button class="nav" data-page="voice">◉ &nbsp; Voice</button>
+    <button class="nav" data-page="tools">⚡ &nbsp; Tools</button>
+    <button class="nav" data-page="files">▤ &nbsp; Files</button>
+    <button class="nav" data-page="study">✦ &nbsp; Study</button>
+    <button class="nav" data-page="coding">⌘ &nbsp; Coding</button>
+    <button class="nav" data-page="settings">⚙ &nbsp; Settings</button>
+  </aside>
+
+  <main>
+    <header>
+      <strong>EMBER <span style="color:#ff2a1f">AI</span></strong>
+      <span class="status">● INTERFACE ONLINE</span>
+      <span id="clock" class="muted"></span>
+    </header>
+
+    <div class="content">
+      <section class="section active" id="home">
+        <div class="hero">
+          <div class="eyes" aria-label="Animated Kurama-inspired eyes">
+            <div class="eye"></div>
+            <div class="eye"></div>
+          </div>
+          <div class="subtitle">NINE-TAILS INTELLIGENCE</div>
+          <h1>I'm EMBER. What's your command?</h1>
+          <p class="muted">Your assistant. Your system. Your rules.</p>
+        </div>
+
+        <div class="panel voice-area">
+          <button class="mic" id="mic" aria-label="Start voice recognition">🎙️</button>
+          <p id="voiceStatus" class="muted">Tap the microphone to speak</p>
+        </div>
+
+        <div class="panel">
+          <h3>AI COMMAND CENTER</h3>
+          <div class="input-row">
+            <input id="command" placeholder="Tell EMBER what to do..." autocomplete="off">
+            <button class="primary" id="send">SEND</button>
+          </div>
+          <div id="chatLog" class="chat-log" aria-live="polite">
+            <div class="message ai">EMBER online. I can help with supported commands and questions.</div>
+          </div>
+        </div>
+
+        <h3>QUICK ACTIONS</h3>
+        <div class="actions">
+          <button class="action" data-command="Search the web"><span>⌕</span>Web Search<small>Find information online</small></button>
+          <button class="action" data-page="tools"><span>⚡</span>AI Tools<small>Explore assistant tools</small></button>
+          <button class="action" data-page="study"><span>✦</span>Study Mode<small>Learn and revise</small></button>
+          <button class="action" data-page="coding"><span>⌘</span>Coding<small>Code assistance</small></button>
+          <button class="action" data-page="files"><span>▤</span>File Analysis<small>Choose a document</small></button>
+          <button class="action" data-page="settings"><span>⚙</span>Settings<small>Configure EMBER</small></button>
+        </div>
+      </section>
+
+      <section class="section" id="chat">
+        <h1>AI Chat</h1>
+        <p class="muted">Talk to EMBER using text or voice.</p>
+        <div class="panel">
+          <div id="chatLogCopy" class="chat-log">
+            Use the Home screen to send a message.
+          </div>
+          <button class="primary" data-page="home">Open Chat Input</button>
+        </div>
+      </section>
+
+      <section class="section" id="voice">
+        <h1>Voice Assistant</h1>
+        <div class="panel voice-area">
+          <button class="mic" id="mic2">🎙️</button>
+          <h3>EMBER LISTENING SYSTEM</h3>
+          <p class="muted">Voice recognition works when supported by your browser.</p>
+          <p id="voiceStatus2" class="muted">Ready</p>
+        </div>
+      </section>
+
+      <section class="section" id="tools">
+        <h1>AI Tools</h1>
+        <div class="cards">
+          <div class="panel">⌕ <h3>Web Search</h3><p class="muted">Search for information using your browser.</p><button class="primary" data-command="Search the web">Start</button></div>
+          <div class="panel">✦ <h3>Writing</h3><p class="muted">Draft, improve, and summarize text.</p><button class="primary" data-command="Help me write something">Start</button></div>
+          <div class="panel">∑ <h3>Maths Solver</h3><p class="muted">Get help understanding maths problems.</p><button class="primary" data-command="Help me solve a maths problem">Start</button></div>
+          <div class="panel">◉ <h3>Reminders</h3><p class="muted">Reminder integration will be added later.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="files">
+        <h1>File Analysis</h1>
+        <div class="panel">
+          <p class="muted">Select a text file to preview its contents locally. AI analysis will be connected in a later stage.</p>
+          <input type="file" id="fileInput" accept=".txt,.md,.csv,.json,.log">
+          <pre id="filePreview" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
+        </div>
+      </section>
+
+      <section class="section" id="study">
+        <h1>Study Mode</h1>
+        <div class="panel">
+          <h3>LEARN WITH EMBER</h3>
+          <p class="muted">Practice questions, revise notes, and understand difficult topics.</p>
+          <button class="primary" data-command="Help me study a topic step by step">Start Studying</button>
+        </div>
+      </section>
+
+      <section class="section" id="coding">
+        <h1>Coding Lab</h1>
+        <div class="panel">
+          <h3>BUILD SOMETHING GREAT</h3>
+          <p class="muted">Plan, write, and understand code with AI assistance.</p>
+          <button class="primary" data-command="Help me write and understand code">Start Coding</button>
+        </div>
+      </section>
+
+      <section class="section" id="settings">
+        <h1>Settings</h1>
+        <div class="panel">
+          <h3>EMBER CONFIGURATION</h3>
+          <p class="muted">Version: 0.1 — Interface Prototype</p>
+          <p class="muted">AI backend: Not connected</p>
+          <p class="muted">Background wake word: Not enabled</p>
+          <p class="muted">Phone-control integration: Not connected</p>
+          <label><input type="checkbox" id="speechToggle" checked style="width:auto"> Speak responses aloud</label>
+        </div>
+      </section>
+
+      <footer>EMBER AI · KURAMA-INSPIRED INTERFACE · PROTOTYPE 0.1</footer>
+    </div>
+  </main>
+</div>
+
+<nav class="bottom-nav" aria-label="Mobile navigation">
+  <button data-page="home"><span>⌂</span>Home</button>
+  <button data-page="chat"><span>◈</span>Chat</button>
+  <button data-page="voice"><span>🎙️</span>Voice</button>
+  <button data-page="tools"><span>⚡</span>Tools</button>
+  <button data-page="settings"><span>⚙</span>Settings</button>
+</nav>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function updateClock() {
+  $("clock").textContent = new Date().toLocaleTimeString([], {
+    hour: "2-digit", minute: "2-digit"
+  });
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+function showPage(page) {
+  if (!$ (page)) return;
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  $(page).classList.add("active");
+
+  document.querySelectorAll("[data-page]").forEach(b => {
+    if (b.classList.contains("nav")) {
+      b.classList.toggle("active", b.dataset.page === page);
+    }
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelectorAll("[data-page]").forEach(button => {
+  button.addEventListener("click", () => showPage(button.dataset.page));
+});
+
+function addMessage(text, type) {
+  const el = document.createElement("div");
+  el.className = "message " + type;
+  el.textContent = text;
+  $("chatLog").appendChild(el);
+  $("chatLog").scrollTop = $("chatLog").scrollHeight;
+  $("chatLogCopy").textContent = $("chatLog").innerText;
+}
+
+function speak(text) {
+  if (!$("speechToggle").checked || !("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 1;
+  speechSynthesis.speak(utterance);
+}
+
+function handleCommand(raw) {
+  const text = raw.trim();
+  if (!text) return;
+
+  addMessage(text, "user");
+  $("command").value = "";
+  const cmd = text.toLowerCase();
+  let reply = "";
+
+  if (/\b(hello|hi|hey)\b/.test(cmd)) {
+    reply = "Hello! EMBER is online. What would you like to do?";
+  } else if (cmd.includes("time")) {
+    reply = "The current time is " + new Date().toLocaleTimeString() + ".";
+  } else if (cmd.includes("date")) {
+    reply = "Today is " + new Date().toLocaleDateString() + ".";
+  } else if (cmd.includes("open youtube")) {
+    reply = "Opening YouTube in your browser.";
+    window.open("https://www.youtube.com/", "_blank", "noopener");
+  } else if (cmd.includes("search the web") || cmd.startsWith("search ")) {
+    const query = text.replace(/^search( the web)?/i, "").trim();
+    reply = query
+      ? "Opening web search results for: " + query
+      : "You can now enter your search in your browser.";
+    window.open("https://www.google.com/search?q=" + encodeURIComponent(query || "web search"), "_blank", "noopener");
+  } else if (cmd.includes("set an alarm") || cmd.includes("call mom") || cmd.includes("text mom")) {
+    reply = "This action needs Android integration. It is not connected in this website prototype yet.";
+  } else {
+    reply = "I'm currently running in prototype mode, without an AI backend. Your command was received. We'll connect the AI brain in the next stage.";
+  }
+
+  addMessage(reply, "ai");
+  speak(reply);
+}
+
+$("send").addEventListener("click", () => handleCommand($("command").value));
+$("command").addEventListener("keydown", event => {
+  if (event.key === "Enter") handleCommand($("command").value);
+});
+
+document.querySelectorAll("[data-command]").forEach(button => {
+  button.addEventListener("click", () => {
+    if (button.dataset.command === "Search the web") {
+      showPage("home");
+      $("command").value = "Search the web";
+      $("command").focus();
+    } else {
+      showPage("home");
+      handleCommand(button.dataset.command);
+    }
+  });
+});
+
+async function previewFile(file) {
+  if (!file) return;
+  if (file.size > 1024 * 1024) {
+    $("filePreview").textContent = "For this prototype, choose a file smaller than 1 MB.";
+    return;
+  }
+  $("filePreview").textContent = await file.text();
+}
+$("fileInput").addEventListener("change", e => previewFile(e.target.files[0]));
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+
+function startListening() {
+  if (!SpeechRecognition) {
+    $("voiceStatus").textContent = "Speech recognition isn't supported here. Try a compatible browser.";
+    $("voiceStatus2").textContent = $("voiceStatus").textContent;
+    return;
+  }
+
+  if (recognition) {
+    try { recognition.abort(); } catch (_) {}
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "en-IN";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  $("mic").classList.add("listening");
+  $("voiceStatus").textContent = "Listening...";
+  $("voiceStatus2").textContent = "Listening...";
+
+  recognition.onresult = event => {
+    const transcript = event.results[0][0].transcript;
+    $("voiceStatus").textContent = "Heard: " + transcript;
+    $("voiceStatus2").textContent = "Heard: " + transcript;
+    handleCommand(transcript);
+  };
+
+  recognition.onerror = event => {
+    $("voiceStatus").textContent = "Voice error: " + event.error;
+    $("voiceStatus2").textContent = "Voice error: " + event.error;
+  };
+
+  recognition.onend = () => {
+    $("mic").classList.remove("listening");
+    $("voiceStatus2").textContent = "Ready";
+  };
+
+  try { recognition.start(); }
+  catch (_) {
+    $("voiceStatus").textContent = "Could not start. Please try again.";
+  }
+}
+
+$("mic").addEventListener("click", startListening);
+$("mic2").addEventListener("click", startListening);
+</script>
+</body>
+</html>
