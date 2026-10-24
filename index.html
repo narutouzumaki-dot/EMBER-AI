@@ -2,371 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080808">
-  <meta name="description" content="EMBER AI — Your personal AI assistant.">
+  <meta name="description" content="EMBER AI — your personal AI assistant">
   <title>EMBER AI — Kurama Intelligence</title>
   <link rel="stylesheet" href="./style.css">
   <script src="./script.js" defer></script>
 </head>
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
-
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
   <aside class="sidebar" id="sidebar">
-    <a class="brand" href="#home" onclick="showPage('home')">
-      <span class="brand-icon">炎</span>
-      <span>EMBER<span class="accent"> AI</span></span>
-    </a>
-
+    <a class="brand" href="#home" data-go="home"><span class="brand-icon">炎</span><span>EMBER <b>AI</b></span></a>
     <div class="sidebar-label">ASSISTANT</div>
-
-    <button class="nav active" data-page="home" onclick="showPage('home')">
-      <span>⌂</span> Home
-    </button>
-    <button class="nav" data-page="chat" onclick="showPage('chat')">
-      <span>◈</span> AI Chat
-    </button>
-    <button class="nav" data-page="voice" onclick="showPage('voice')">
-      <span>◉</span> Voice Assistant
-    </button>
-
+    <button class="nav active" data-page="home"><span>⌂</span> Home</button>
+    <button class="nav" data-page="chat"><span>◈</span> AI Chat</button>
+    <button class="nav" data-page="voice"><span>◉</span> Voice Assistant</button>
     <div class="sidebar-label">WORKSPACE</div>
-
-    <button class="nav" data-page="files" onclick="showPage('files')">
-      <span>▤</span> File Analysis
-    </button>
-    <button class="nav" data-page="study" onclick="showPage('study')">
-      <span>⌘</span> Study Mode
-    </button>
-    <button class="nav" data-page="coding" onclick="showPage('coding')">
-      <span>&lt;/&gt;</span> Coding
-    </button>
-    <button class="nav" data-page="settings" onclick="showPage('settings')">
-      <span>⚙</span> Settings
-    </button>
-
-    <div class="sidebar-bottom">
-      <span class="status-dot"></span>
-      <span id="backendStatus">Checking AI connection...</span>
-    </div>
+    <button class="nav" data-page="files"><span>▤</span> File Analysis</button>
+    <button class="nav" data-page="study"><span>⌘</span> Study Mode</button>
+    <button class="nav" data-page="coding"><span>&lt;/&gt;</span> Coding</button>
+    <button class="nav" data-page="settings"><span>⚙</span> Settings</button>
+    <div class="sidebar-bottom"><span class="status-dot"></span><span id="backendStatus">Checking AI connection…</span></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <button class="icon-button menu-button" id="menuButton"
-        aria-label="Toggle navigation">☰</button>
-
-      <div class="top-title">EMBER <span class="accent">INTELLIGENCE</span></div>
-
-      <div class="top-right">
-        <span class="live-dot"></span>
-        <span id="clock">--:--</span>
-      </div>
+      <button class="icon-button menu-button" id="menuButton" aria-label="Toggle navigation">☰</button>
+      <div class="top-title">EMBER <span>INTELLIGENCE</span></div>
+      <div class="top-right"><span class="live-dot"></span><span id="clock">--:--</span></div>
     </header>
 
     <div class="content">
-
-      <!-- HOME -->
       <section class="section active" id="home">
         <div class="hero">
-          <div class="eyebrow"><span class="live-dot"></span> SYSTEM ONLINE</div>
-
-          <div class="kurama-eye" aria-label="Abstract Kurama-inspired eye">
-            <div class="eye-ring">
-              <div class="eye-iris">
-                <div class="eye-pupil"></div>
-              </div>
-            </div>
-          </div>
-
+          <div class="eyebrow"><i class="live-dot"></i> SYSTEM ONLINE</div>
+          <div class="kurama-eye" aria-label="Animated Kurama-inspired eye"><div class="eye-ring"><div class="eye-iris"><div class="eye-pupil"></div></div></div></div>
+          <div class="aura"></div>
           <h1>AWAKEN YOUR<br><span class="gradient-text">INNER FIRE.</span></h1>
-
-          <p class="muted">
-            Your personal intelligence system. Ready when you are.
-          </p>
-
-          <button class="primary-button" onclick="showPage('chat')">
-            ◈ Initialize Assistant
-          </button>
+          <p class="muted">Your personal intelligence system. Ready when you are.</p>
+          <button class="primary-button" data-go="chat">◈ Initialize Assistant</button>
         </div>
-
-        <div class="section-heading">
-          <div>
-            <div class="eyebrow">QUICK ACCESS</div>
-            <h2>What are we doing today?</h2>
-          </div>
-        </div>
-
+        <div class="section-heading"><div class="eyebrow">QUICK ACCESS</div><h2>What are we doing today?</h2></div>
         <div class="card-grid">
-          <button class="feature-card" onclick="showPage('chat')">
-            <span class="feature-icon">◈</span>
-            <h3>AI Chat</h3>
-            <p>Ask questions and explore ideas.</p>
-            <span class="card-arrow">↗</span>
-          </button>
-
-          <button class="feature-card" onclick="showPage('voice')">
-            <span class="feature-icon">◉</span>
-            <h3>Voice Control</h3>
-            <p>Talk to your assistant.</p>
-            <span class="card-arrow">↗</span>
-          </button>
-
-          <button class="feature-card" onclick="showPage('files')">
-            <span class="feature-icon">▤</span>
-            <h3>File Analysis</h3>
-            <p>Review text and code files.</p>
-            <span class="card-arrow">↗</span>
-          </button>
-
-          <button class="feature-card" onclick="showPage('study')">
-            <span class="feature-icon">⌘</span>
-            <h3>Study Mode</h3>
-            <p>Learn one step at a time.</p>
-            <span class="card-arrow">↗</span>
-          </button>
-
-          <button class="feature-card" onclick="showPage('coding')">
-            <span class="feature-icon">&lt;/&gt;</span>
-            <h3>Coding Lab</h3>
-            <p>Learn and debug code.</p>
-            <span class="card-arrow">↗</span>
-          </button>
-
-          <button class="feature-card" onclick="showPage('settings')">
-            <span class="feature-icon">⚙</span>
-            <h3>Configuration</h3>
-            <p>Configure your experience.</p>
-            <span class="card-arrow">↗</span>
-          </button>
+          <button class="feature-card" data-go="chat"><span class="feature-icon">◈</span><h3>AI Chat</h3><p>Ask questions and explore ideas.</p><span class="card-arrow">↗</span></button>
+          <button class="feature-card" data-go="voice"><span class="feature-icon">◉</span><h3>Voice Control</h3><p>Talk to your assistant.</p><span class="card-arrow">↗</span></button>
+          <button class="feature-card" data-go="files"><span class="feature-icon">▤</span><h3>File Analysis</h3><p>Review text and code files.</p><span class="card-arrow">↗</span></button>
+          <button class="feature-card" data-go="study"><span class="feature-icon">⌘</span><h3>Study Mode</h3><p>Learn one step at a time.</p><span class="card-arrow">↗</span></button>
+          <button class="feature-card" data-go="coding"><span class="feature-icon">&lt;/&gt;</span><h3>Coding Lab</h3><p>Learn and debug code.</p><span class="card-arrow">↗</span></button>
+          <button class="feature-card" data-go="settings"><span class="feature-icon">⚙</span><h3>Configuration</h3><p>Configure your experience.</p><span class="card-arrow">↗</span></button>
         </div>
       </section>
 
-      <!-- CHAT -->
       <section class="section" id="chat">
-        <div class="page-heading">
-          <div class="eyebrow">NEURAL INTERFACE / 01</div>
-          <h1>AI <span class="accent">CHAT</span></h1>
-          <p class="muted">Ask EMBER anything.</p>
-        </div>
-
+        <div class="page-heading"><div class="eyebrow">NEURAL INTERFACE / 01</div><h1>AI <span>CHAT</span></h1><p class="muted">Ask EMBER anything.</p></div>
         <div class="chat-panel">
-          <div class="chat-header">
-            <div class="assistant-avatar">炎</div>
-            <div>
-              <strong>EMBER AI</strong>
-              <div class="muted small">Personal AI assistant</div>
-            </div>
-            <button class="secondary-button small-button" id="clearChat">
-              Clear chat
-            </button>
-          </div>
-
-          <div class="chat-log" id="chatLog" aria-live="polite">
-            <div class="message assistant-message">
-              <strong>EMBER</strong>
-              <p>System initialized. What would you like to explore?</p>
-            </div>
-          </div>
-
-          <form class="input-row" id="chatForm">
-            <input id="command" autocomplete="off"
-              placeholder="Message EMBER AI..." maxlength="10000"
-              aria-label="Message to EMBER AI">
-            <button class="secondary-button" type="button" id="chatMic"
-              aria-label="Use microphone">🎙</button>
-            <button class="primary-button send-button" id="send" type="submit">
-              Send ↗
-            </button>
-          </form>
-
-          <p class="muted small disclaimer">
-            AI responses can contain mistakes. Verify important information.
-          </p>
+          <div class="chat-header"><div class="assistant-avatar">炎</div><div class="chat-title"><strong>EMBER AI</strong><small id="chatState">Personal AI assistant</small></div><button class="secondary-button small-button" id="clearChat">Clear chat</button></div>
+          <div class="chat-log" id="chatLog" aria-live="polite"><div class="message assistant-message"><strong>EMBER</strong><p>System initialized. What would you like to explore?</p></div></div>
+          <form class="input-row" id="chatForm"><textarea id="command" rows="1" maxlength="12000" placeholder="Message EMBER AI…" aria-label="Message to EMBER AI"></textarea><button class="secondary-button" type="button" id="chatMic" aria-label="Use microphone">🎙</button><button class="primary-button send-button" id="send" type="submit">Send ↗</button></form>
+          <p class="muted small disclaimer">AI responses can contain mistakes. Verify important information.</p>
         </div>
       </section>
 
-      <!-- VOICE -->
       <section class="section" id="voice">
-        <div class="page-heading">
-          <div class="eyebrow">AUDIO INTERFACE / 02</div>
-          <h1>VOICE <span class="accent">CORE</span></h1>
-          <p class="muted">Use your device's supported speech recognition.</p>
-        </div>
-
-        <div class="panel voice-panel">
-          <div class="voice-orb" id="voiceOrb">炎</div>
-          <h2 id="voiceStatus">Voice system ready</h2>
-          <p class="muted">Tap the button and speak your request.</p>
-          <button class="primary-button" id="voiceStart">◉ Start Listening</button>
-          <div class="voice-transcript" id="voiceTranscript">
-            Your recognized speech will appear here.
-          </div>
-          <button class="secondary-button" id="speakLast">Read last reply aloud</button>
-        </div>
+        <div class="page-heading"><div class="eyebrow">AUDIO INTERFACE / 02</div><h1>VOICE <span>CORE</span></h1><p class="muted">Tap to speak. Browser support and permission are required.</p></div>
+        <div class="panel voice-panel"><div class="voice-orb" id="voiceOrb">炎</div><h2 id="voiceStatus">Voice system ready</h2><p class="muted">EMBER will send your recognized words to the AI.</p><button class="primary-button" id="voiceStart">◉ Start Listening</button><div class="voice-transcript" id="voiceTranscript">Your recognized speech will appear here.</div><button class="secondary-button" id="speakLast">Read last reply aloud</button></div>
       </section>
 
-      <!-- FILES -->
       <section class="section" id="files">
-        <div class="page-heading">
-          <div class="eyebrow">DATA INTELLIGENCE / 03</div>
-          <h1>FILE <span class="accent">ANALYSIS</span></h1>
-          <p class="muted">Upload a text-based file for analysis.</p>
-        </div>
-
-        <div class="panel">
-          <label class="upload-zone" for="fileInput">
-            <span class="feature-icon">⇧</span>
-            <strong>Choose a file</strong>
-            <span class="muted small">TXT, MD, CSV, JSON, JS, CSS, HTML, PY</span>
-          </label>
-
-          <input id="fileInput" type="file"
-            accept=".txt,.md,.csv,.json,.js,.css,.html,.py,.xml,.log">
-
-          <div id="filePreview" class="file-preview"></div>
-
-          <label for="fileQuestion">What should EMBER analyze?</label>
-          <textarea id="fileQuestion" rows="3"
-            placeholder="Summarize, explain, find errors..."></textarea>
-
-          <button class="primary-button" id="analyzeFile">
-            Analyze File ↗
-          </button>
-        </div>
+        <div class="page-heading"><div class="eyebrow">DATA INTELLIGENCE / 03</div><h1>FILE <span>ANALYSIS</span></h1><p class="muted">Analyze supported text-based files locally in your browser.</p></div>
+        <div class="panel"><label class="upload-zone" for="fileInput"><span class="feature-icon">⇧</span><strong>Choose a file</strong><span class="muted small">TXT, MD, CSV, JSON, JS, CSS, HTML, PY, XML, LOG</span></label><input id="fileInput" type="file" accept=".txt,.md,.csv,.json,.js,.css,.html,.py,.xml,.log"><div id="filePreview" class="file-preview"></div><label for="fileQuestion">What should EMBER analyze?</label><textarea id="fileQuestion" rows="3" placeholder="Summarize, explain, find errors…"></textarea><button class="primary-button" id="analyzeFile">Analyze File ↗</button><p class="muted small">Files are read in your browser and sent to your configured AI backend only when you press Analyze.</p></div>
       </section>
 
-      <!-- STUDY -->
       <section class="section" id="study">
-        <div class="page-heading">
-          <div class="eyebrow">LEARNING ENGINE / 04</div>
-          <h1>STUDY <span class="accent">MODE</span></h1>
-          <p class="muted">Break difficult topics into manageable steps.</p>
-        </div>
-
-        <div class="panel">
-          <label for="studyTopic">What topic are you studying?</label>
-          <input id="studyTopic" placeholder="Example: Motion along a straight line">
-
-          <label for="studyLevel">Learning level</label>
-          <select id="studyLevel">
-            <option value="beginner">Beginner — explain simply</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-
-          <label for="studyTask">Choose a task</label>
-          <select id="studyTask">
-            <option value="Teach me step by step">Teach me step by step</option>
-            <option value="Make short revision notes">Make revision notes</option>
-            <option value="Quiz me one question at a time">Quiz me</option>
-            <option value="Help me memorize the key points">Help me memorize</option>
-            <option value="Explain with examples">Explain with examples</option>
-          </select>
-
-          <button class="primary-button" id="startStudy">Start Learning ↗</button>
-        </div>
+        <div class="page-heading"><div class="eyebrow">LEARNING ENGINE / 04</div><h1>STUDY <span>MODE</span></h1><p class="muted">Break difficult topics into manageable steps.</p></div>
+        <div class="panel"><label for="studyTopic">What topic are you studying?</label><input id="studyTopic" placeholder="Example: Motion along a straight line"><label for="studyLevel">Learning level</label><select id="studyLevel"><option value="beginner">Beginner — explain simply</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select><label for="studyTask">Choose a task</label><select id="studyTask"><option value="Teach me step by step">Teach me step by step</option><option value="Make short revision notes">Make revision notes</option><option value="Quiz me one question at a time">Quiz me</option><option value="Help me memorize key points using active recall">Help me memorize</option><option value="Explain with examples">Explain with examples</option></select><button class="primary-button" id="startStudy">Start Learning ↗</button></div>
       </section>
 
-      <!-- CODING -->
       <section class="section" id="coding">
-        <div class="page-heading">
-          <div class="eyebrow">DEVELOPMENT ENGINE / 05</div>
-          <h1>CODING <span class="accent">LAB</span></h1>
-          <p class="muted">Explain, review, or debug code.</p>
-        </div>
-
-        <div class="panel">
-          <label for="codeLanguage">Programming language</label>
-          <select id="codeLanguage">
-            <option>JavaScript</option>
-            <option>HTML/CSS</option>
-            <option>Python</option>
-            <option>Java</option>
-            <option>C</option>
-            <option>C++</option>
-            <option>Other</option>
-          </select>
-
-          <label for="codeInput">Your code or coding question</label>
-          <textarea id="codeInput" rows="10"
-            placeholder="Paste your code or describe what you want to build..."></textarea>
-
-          <label for="codeTask">Task</label>
-          <select id="codeTask">
-            <option value="Explain this code for a beginner">Explain code</option>
-            <option value="Find bugs and suggest fixes">Debug code</option>
-            <option value="Improve this code and explain changes">Improve code</option>
-            <option value="Help me build this step by step">Build a project</option>
-          </select>
-
-          <button class="primary-button" id="runCodeHelp">Analyze Code ↗</button>
-        </div>
+        <div class="page-heading"><div class="eyebrow">DEVELOPMENT ENGINE / 05</div><h1>CODING <span>LAB</span></h1><p class="muted">Explain, review, or debug code.</p></div>
+        <div class="panel"><label for="codeLanguage">Programming language</label><select id="codeLanguage"><option>JavaScript</option><option>HTML/CSS</option><option>Python</option><option>Java</option><option>C</option><option>C++</option><option>Other</option></select><label for="codeInput">Your code or coding question</label><textarea id="codeInput" rows="10" placeholder="Paste your code or describe what you want to build…"></textarea><label for="codeTask">Task</label><select id="codeTask"><option value="Explain this code for a beginner">Explain code</option><option value="Find bugs and suggest fixes">Debug code</option><option value="Improve this code and explain changes">Improve code</option><option value="Help me build this step by step">Build a project</option></select><button class="primary-button" id="runCodeHelp">Analyze Code ↗</button></div>
       </section>
 
-      <!-- SETTINGS -->
       <section class="section" id="settings">
-        <div class="page-heading">
-          <div class="eyebrow">SYSTEM CONFIGURATION / 06</div>
-          <h1>SET<span class="accent">TINGS</span></h1>
-          <p class="muted">Configure the local interface.</p>
-        </div>
-
-        <div class="panel settings-list">
-          <div class="setting-row">
-            <div>
-              <strong>Voice replies</strong>
-              <p class="muted small">Speak EMBER's responses aloud.</p>
-            </div>
-            <input id="speechToggle" type="checkbox">
-          </div>
-
-          <div class="setting-row">
-            <div>
-              <strong>Interface sound</strong>
-              <p class="muted small">Visual effects are enabled by default.</p>
-            </div>
-            <span class="accent">EMBER UI</span>
-          </div>
-
-          <div class="setting-row">
-            <div>
-              <strong>AI backend</strong>
-              <p class="muted small">Connection status</p>
-            </div>
-            <span id="settingsBackendStatus">Checking...</span>
-          </div>
-
-          <button class="secondary-button" id="checkConnection">
-            Check AI Connection
-          </button>
-        </div>
-
-        <p class="muted small">
-          Voice recognition depends on your browser and device permissions.
-          This interface does not listen for a wake word while closed.
-        </p>
+        <div class="page-heading"><div class="eyebrow">SYSTEM CONFIGURATION / 06</div><h1>SET<span>TINGS</span></h1><p class="muted">Configure your local experience.</p></div>
+        <div class="panel settings-list"><div class="setting-row"><div><strong>Voice replies</strong><p class="muted small">Speak EMBER's responses aloud.</p></div><input id="speechToggle" type="checkbox" aria-label="Enable spoken responses"></div><div class="setting-row"><div><strong>Remember chat on this device</strong><p class="muted small">Stores recent messages in this browser only.</p></div><input id="historyToggle" type="checkbox" aria-label="Enable local chat history"></div><div class="setting-row"><div><strong>AI backend</strong><p class="muted small">Connection status</p></div><span id="settingsBackendStatus">Checking…</span></div><button class="secondary-button" id="checkConnection">Check AI Connection</button><button class="secondary-button" id="clearHistory">Delete saved chat history</button></div>
+        <p class="muted small">Do not enter passwords, API keys, or sensitive personal information into chat.</p>
       </section>
-
     </div>
 
     <nav class="mobile-nav" aria-label="Mobile navigation">
-      <button class="mobile-link active" data-page="home" onclick="showPage('home')">
-        <span>⌂</span>Home
-      </button>
-      <button class="mobile-link" data-page="chat" onclick="showPage('chat')">
-        <span>◈</span>Chat
-      </button>
-      <button class="mobile-link" data-page="voice" onclick="showPage('voice')">
-        <span>◉</span>Voice
-      </button>
-      <button class="mobile-link" data-page="files" onclick="showPage('files')">
-        <span>▤</span>Files
-      </button>
-      <button class="mobile-link" data-page="settings" onclick="showPage('settings')">
-        <span>⚙</span>Settings
-      </button>
+      <button class="mobile-link active" data-page="home"><span>⌂</span>Home</button><button class="mobile-link" data-page="chat"><span>◈</span>Chat</button><button class="mobile-link" data-page="voice"><span>◉</span>Voice</button><button class="mobile-link" data-page="files"><span>▤</span>Files</button><button class="mobile-link" data-page="settings"><span>⚙</span>Settings</button>
     </nav>
   </main>
 </body>
