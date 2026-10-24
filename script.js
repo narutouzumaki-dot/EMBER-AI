@@ -1,6 +1,6 @@
 "use strict";
 
-const WORKER_URL = "PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE";
+const WORKER_URL = "https://ember-ai-backend.narutouzumaki204070.workers.dev/";
 
 const $ = (id) => document.getElementById(id);
 
