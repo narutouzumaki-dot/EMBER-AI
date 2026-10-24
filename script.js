@@ -2,7 +2,7 @@
 
 // Replace this with the base URL of your deployed Cloudflare Worker.
 // Example format: https://ember-ai-backend.YOUR-SUBDOMAIN.workers.dev
-const WORKER_URL = "PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE";
+const WORKER_URL = "https://ember-ai-backend.narutouzumaki204070.workers.dev/";
 const HISTORY_KEY = "ember-ai-chat-v1";
 const PREF_KEY = "ember-ai-preferences-v1";
 const $ = id => document.getElementById(id);
