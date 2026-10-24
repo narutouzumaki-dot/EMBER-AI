@@ -1,235 +1,152 @@
 "use strict";
 
-/* ==========================================
-   EMBER AI — FRONTEND CONTROLLER
-   ========================================== */
+/* ========================================
+   EMBER AI — MAIN CONTROLLER
+   Compatible with your existing index.html
+   ======================================== */
 
-// Replace this with your real Cloudflare Worker URL.
+// Replace with your actual Cloudflare Worker URL.
 // Example: https://ember-ai-backend.your-subdomain.workers.dev
-const WORKER_URL =
-  "https://YOUR-WORKER-URL";
+const WORKER_URL = "https://YOUR-WORKER-URL";
 
-const CHAT_ENDPOINT = `${WORKER_URL}/chat`;
-
-const $ = (selector, root = document) =>
-  root.querySelector(selector);
-
-const $$ = (selector, root = document) =>
-  [...root.querySelectorAll(selector)];
+const $ = id => document.getElementById(id);
 
 const state = {
-  listening: false,
+  busy: false,
   recognition: null,
-  busy: false
+  listening: false
 };
 
-/* ==========================================
-   ELEMENTS
-   ========================================== */
-
-const sidebar = $(".sidebar");
-const overlay = $(".mobile-overlay");
-const chatLog = $("#chatLog");
-const chatForm = $("#chatForm");
-const chatInput = $("#chatInput");
-const sendButton = $("#sendButton");
-const voiceStatus = $("#voiceStatus");
-const voiceOrb = $("#voiceOrb");
-const kuramaStage = $(".kurama-stage");
-
-/* ==========================================
-   SAFE TEXT DISPLAY
-   Use textContent, not innerHTML, for AI output.
-   ========================================== */
-
-function addMessage(text, role = "assistant", extraClass = "") {
-  if (!chatLog) return null;
-
-  const message = document.createElement("div");
-
-  message.className =
-    `message ${role}` +
-    (extraClass ? ` ${extraClass}` : "");
-
-  message.textContent = String(text);
-
-  chatLog.appendChild(message);
-  chatLog.scrollTop = chatLog.scrollHeight;
-
-  return message;
-}
-
-function setNotice(message, type = "") {
-  const notice = $("#appNotice");
-  if (!notice) return;
-
-  notice.textContent = message;
-  notice.className = `notice ${type}`;
-  notice.classList.remove("hidden");
-}
-
-function clearNotice() {
-  const notice = $("#appNotice");
-  if (notice) {
-    notice.textContent = "";
-    notice.className = "notice hidden";
-  }
-}
-
-/* ==========================================
-   PAGE NAVIGATION
-   Expected page IDs:
-   homePage, chatPage, voicePage, toolsPage,
-   filesPage, studyPage, codingPage, settingsPage
-   ========================================== */
-
-function showPage(pageName) {
-  const page = document.getElementById(`${pageName}Page`);
-
-  if (!page) {
-    console.warn(`EMBER AI: Page not found: ${pageName}Page`);
-    return;
-  }
-
-  $$(".page").forEach(item => {
-    item.classList.remove("active");
-  });
-
-  page.classList.add("active");
-
-  $$(".nav-item").forEach(button => {
-    const isActive = button.dataset.page === pageName;
-
-    button.classList.toggle("active", isActive);
-
-    if (isActive) {
-      button.setAttribute("aria-current", "page");
-    } else {
-      button.removeAttribute("aria-current");
-    }
-  });
-
-  const titles = {
-    home: ["EMBER AI", "Your personal AI assistant"],
-    chat: ["AI Chat", "Talk to the EMBER intelligence"],
-    voice: ["Voice Assistant", "Speak where supported"],
-    tools: ["Tools", "Useful assistant utilities"],
-    files: ["File Analysis", "Read supported text files"],
-    study: ["Study Mode", "Learn step by step"],
-    coding: ["Coding Lab", "Build and understand code"],
-    settings: ["Settings", "Configure your interface"]
-  };
-
-  const title = titles[pageName];
-
-  if (title) {
-    const heading = $("#pageTitle");
-    const subtitle = $("#pageSubtitle");
-
-    if (heading) heading.textContent = title[0];
-    if (subtitle) subtitle.textContent = title[1];
-  }
-
-  closeMobileMenu();
-
-  if (pageName === "chat" && chatInput) {
-    setTimeout(() => chatInput.focus(), 100);
-  }
-}
-
-$$("[data-page]").forEach(button => {
-  button.addEventListener("click", () => {
-    showPage(button.dataset.page);
-  });
-});
-
-/* ==========================================
-   MOBILE MENU
-   ========================================== */
-
-function openMobileMenu() {
-  sidebar?.classList.add("open");
-  overlay?.classList.add("open");
-}
-
-function closeMobileMenu() {
-  sidebar?.classList.remove("open");
-  overlay?.classList.remove("open");
-}
-
-$("#menuToggle")?.addEventListener("click", () => {
-  if (sidebar?.classList.contains("open")) {
-    closeMobileMenu();
-  } else {
-    openMobileMenu();
-  }
-});
-
-overlay?.addEventListener("click", closeMobileMenu);
-
-/* ==========================================
-   CLOCK
-   ========================================== */
+/* =============== CLOCK ================= */
 
 function updateClock() {
-  const clock = $("#clock");
+  const clock = $("clock");
   if (!clock) return;
 
-  clock.textContent = new Intl.DateTimeFormat(undefined, {
+  clock.textContent = new Date().toLocaleTimeString([], {
     hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit"
-  }).format(new Date());
+    minute: "2-digit"
+  });
 }
 
 updateClock();
 setInterval(updateClock, 1000);
 
-/* ==========================================
-   CHAT — CLOUDFLARE WORKER + GEMINI
-   ========================================== */
+/* ============== NAVIGATION ============= */
+
+function showPage(page) {
+  const target = $(page);
+  if (!target) return;
+
+  document.querySelectorAll(".section").forEach(section => {
+    section.classList.toggle("active", section.id === page);
+  });
+
+  document.querySelectorAll(".nav").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.page === page
+    );
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+document.querySelectorAll("[data-page]").forEach(button => {
+  button.addEventListener("click", () => {
+    showPage(button.dataset.page);
+  });
+});
+
+/* ============== CHAT DISPLAY =========== */
+
+function addMessage(text, type = "ai") {
+  const element = document.createElement("div");
+
+  element.className = `message ${type}`;
+  element.textContent = String(text);
+
+  $("chatLog")?.appendChild(element);
+
+  const log = $("chatLog");
+  if (log) log.scrollTop = log.scrollHeight;
+
+  const copy = $("chatLogCopy");
+  if (copy) {
+    copy.textContent = log?.innerText || "";
+  }
+
+  return element;
+}
+
+/* ============== SPEECH OUTPUT =========== */
+
+function speak(text) {
+  const setting = $("speechToggle");
+
+  if (setting && !setting.checked) return;
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(
+    String(text).slice(0, 4000)
+  );
+
+  utterance.lang = "en-IN";
+  utterance.rate = 1;
+  utterance.pitch = 0.95;
+
+  window.speechSynthesis.speak(utterance);
+}
+
+/* ============== GEMINI CONNECTION ====== */
 
 async function askEmber(message) {
-  if (state.busy) return;
+  const text = String(message || "").trim();
 
-  const cleanMessage = String(message || "").trim();
+  if (!text) return;
 
-  if (!cleanMessage) return;
+  if (state.busy) {
+    addMessage(
+      "EMBER is still processing your previous request. Please wait.",
+      "ai"
+    );
+    return;
+  }
 
   if (
     WORKER_URL.includes("YOUR-WORKER-URL") ||
     !WORKER_URL.startsWith("https://")
   ) {
     addMessage(
-      "Setup required: open script.js and replace WORKER_URL with your actual Cloudflare Worker URL.",
-      "assistant",
-      "error"
+      "Setup required: add your actual Cloudflare Worker URL to script.js.",
+      "ai"
     );
-    return;
-  }
-
-  if (!chatLog) {
-    console.error("EMBER AI: Missing #chatLog element.");
     return;
   }
 
   state.busy = true;
 
+  const sendButton = $("send");
   if (sendButton) sendButton.disabled = true;
 
-  addMessage(cleanMessage, "user");
+  addMessage(text, "user");
 
-  const typing = addMessage("EMBER is thinking...", "assistant");
-  typing?.classList.add("typing-indicator");
+  const loading = addMessage("EMBER is thinking...", "ai");
+  loading.classList.add("loading");
 
   try {
-    const response = await fetch(CHAT_ENDPOINT, {
+    const response = await fetch(`${WORKER_URL}/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        message: cleanMessage
+        message: text
       })
     });
 
@@ -243,140 +160,207 @@ async function askEmber(message) {
 
     if (!response.ok) {
       throw new Error(
-        data.error ||
-        `The server returned status ${response.status}.`
+        data.error || `Server error ${response.status}`
       );
     }
 
-    if (typeof data.reply !== "string" || !data.reply.trim()) {
-      throw new Error("The AI returned an empty response.");
+    if (!data.reply || typeof data.reply !== "string") {
+      throw new Error("The AI returned no answer.");
     }
 
-    typing?.remove();
+    loading.remove();
 
-    addMessage(data.reply, "assistant");
-
-    // Optional voice readout, only when explicitly enabled.
-    if ($("#voiceReplies")?.checked) {
-      speakText(data.reply);
-    }
+    addMessage(data.reply, "ai");
+    speak(data.reply);
 
   } catch (error) {
-    typing?.remove();
+    loading.remove();
 
-    console.error("EMBER AI chat error:", error);
+    console.error("EMBER AI error:", error);
 
     addMessage(
-      `I couldn't connect to my AI service. ${error.message || "Please try again."}`,
-      "assistant",
-      "error"
+      `I couldn't reach my AI service. ${error.message || "Please try again."}`,
+      "ai"
     );
 
   } finally {
     state.busy = false;
-
     if (sendButton) sendButton.disabled = false;
-
-    chatInput?.focus();
   }
 }
 
-chatForm?.addEventListener("submit", event => {
-  event.preventDefault();
+/* ============== COMMAND INPUT ========== */
 
-  const message = chatInput?.value || "";
+function handleCommand(raw) {
+  const text = String(raw || "").trim();
 
-  if (!message.trim()) return;
+  if (!text) return;
 
-  if (chatInput) chatInput.value = "";
+  const command = text.toLowerCase();
 
-  askEmber(message);
+  // Local commands: no AI request required.
+  if (/^(hello|hi|hey|hello ember)[!. ]*$/.test(command)) {
+    const reply =
+      "Hello! EMBER is online. What would you like help with?";
+
+    addMessage(text, "user");
+    addMessage(reply, "ai");
+    speak(reply);
+    return;
+  }
+
+  if (
+    command === "time" ||
+    command === "what time is it" ||
+    command === "tell me the time"
+  ) {
+    const reply =
+      "The current time is " +
+      new Date().toLocaleTimeString();
+
+    addMessage(text, "user");
+    addMessage(reply, "ai");
+    speak(reply);
+    return;
+  }
+
+  if (
+    command === "date" ||
+    command === "what is today's date" ||
+    command === "what is the date"
+  ) {
+    const reply =
+      "Today's date is " +
+      new Date().toLocaleDateString();
+
+    addMessage(text, "user");
+    addMessage(reply, "ai");
+    speak(reply);
+    return;
+  }
+
+  if (command === "open youtube") {
+    addMessage(text, "user");
+
+    const reply = "Opening YouTube in a new browser tab.";
+
+    addMessage(reply, "ai");
+    speak(reply);
+
+    window.open(
+      "https://www.youtube.com/",
+      "_blank",
+      "noopener,noreferrer"
+    );
+
+    return;
+  }
+
+  if (command === "search the web") {
+    addMessage(text, "user");
+
+    const reply =
+      "Tell me what you want to search for.";
+
+    addMessage(reply, "ai");
+    speak(reply);
+
+    return;
+  }
+
+  // All other questions go to the real AI backend.
+  askEmber(text);
+}
+
+function sendCommand() {
+  const input = $("command");
+  if (!input) return;
+
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = "";
+  handleCommand(text);
+}
+
+$("send")?.addEventListener("click", sendCommand);
+
+$("command")?.addEventListener("keydown", event => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    sendCommand();
+  }
 });
 
-/* ==========================================
-   QUICK ACTIONS
-   ========================================== */
+/* ============== QUICK ACTIONS ========== */
 
-$$("[data-prompt]").forEach(button => {
+document.querySelectorAll("[data-command]").forEach(button => {
   button.addEventListener("click", () => {
-    const prompt = button.dataset.prompt;
+    const command = button.dataset.command;
+    if (!command) return;
 
-    if (!prompt) return;
+    showPage("home");
 
-    showPage("chat");
+    const input = $("command");
 
-    if (chatInput) {
-      chatInput.value = prompt;
-      chatInput.focus();
+    if (command === "Search the web") {
+      if (input) {
+        input.value = "";
+        input.placeholder = "What would you like to search for?";
+        input.focus();
+      }
+      return;
     }
+
+    handleCommand(command);
   });
 });
 
-$("#clearChat")?.addEventListener("click", () => {
-  if (!chatLog) return;
-
-  chatLog.replaceChildren();
-
-  addMessage(
-    "Chat cleared. What would you like help with?",
-    "assistant"
-  );
-});
-
-/* ==========================================
-   BROWSER VOICE RECOGNITION
-   Requires browser support and microphone access.
-   This does not provide reliable background wake-word
-   detection or full Android phone control.
-   ========================================== */
+/* ============== VOICE INPUT ============ */
 
 const SpeechRecognition =
   window.SpeechRecognition ||
   window.webkitSpeechRecognition;
 
-function setListeningUI(active) {
-  state.listening = active;
-
-  kuramaStage?.classList.toggle("listening", active);
-  voiceOrb?.classList.toggle("listening", active);
-
-  if (voiceStatus) {
-    voiceStatus.textContent = active
-      ? "Listening... speak now"
-      : "Microphone is not listening.";
+function updateVoiceStatus(message) {
+  if ($("voiceStatus")) {
+    $("voiceStatus").textContent = message;
   }
 
-  const micButton = $("#micButton");
-
-  if (micButton) {
-    micButton.textContent = active
-      ? "■ Stop Listening"
-      : "🎙 Start Listening";
+  if ($("voiceStatus2")) {
+    $("voiceStatus2").textContent = message;
   }
 }
 
-function initSpeechRecognition() {
+function startListening() {
   if (!SpeechRecognition) {
-    if (voiceStatus) {
-      voiceStatus.textContent =
-        "Speech recognition is not supported by this browser. Try a supported browser or type your message.";
-    }
+    updateVoiceStatus(
+      "Voice recognition isn't supported by this browser. Please type your message."
+    );
+    return;
+  }
 
-    const micButton = $("#micButton");
-    if (micButton) micButton.disabled = true;
-
+  if (state.listening) {
+    stopListening();
     return;
   }
 
   const recognition = new SpeechRecognition();
 
-  recognition.lang = navigator.language || "en-IN";
+  recognition.lang = "en-IN";
   recognition.continuous = false;
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
+  state.recognition = recognition;
+
   recognition.onstart = () => {
-    setListeningUI(true);
+    state.listening = true;
+
+    $("mic")?.classList.add("listening");
+    $("mic2")?.classList.add("listening");
+
+    updateVoiceStatus("Listening... speak now.");
   };
 
   recognition.onresult = event => {
@@ -385,273 +369,131 @@ function initSpeechRecognition() {
 
     if (!transcript) return;
 
-    if (chatInput) {
-      chatInput.value = transcript;
-    }
+    updateVoiceStatus(`Heard: ${transcript}`);
 
-    showPage("chat");
-    askEmber(transcript);
+    showPage("home");
+    handleCommand(transcript);
   };
 
   recognition.onerror = event => {
-    console.warn("EMBER voice error:", event.error);
-
-    if (voiceStatus) {
-      voiceStatus.textContent =
-        event.error === "not-allowed"
-          ? "Microphone permission was denied."
-          : `Voice error: ${event.error}`;
-    }
+    updateVoiceStatus(
+      event.error === "not-allowed"
+        ? "Microphone permission denied."
+        : `Voice error: ${event.error}`
+    );
   };
 
   recognition.onend = () => {
-    setListeningUI(false);
+    state.listening = false;
+
+    $("mic")?.classList.remove("listening");
+    $("mic2")?.classList.remove("listening");
   };
 
-  state.recognition = recognition;
-}
-
-initSpeechRecognition();
-
-function startListening() {
-  if (!state.recognition) {
-    if (voiceStatus) {
-      voiceStatus.textContent =
-        "Voice recognition is unavailable in this browser.";
-    }
-    return;
-  }
-
   try {
-    state.recognition.start();
+    recognition.start();
   } catch (error) {
-    console.warn("Could not start recognition:", error);
-
-    if (voiceStatus) {
-      voiceStatus.textContent =
-        "Voice recognition is already running. Try again shortly.";
-    }
+    console.error(error);
+    updateVoiceStatus("Couldn't start the microphone. Try again.");
   }
 }
 
 function stopListening() {
   try {
     state.recognition?.stop();
-  } catch (error) {
-    console.warn(error);
-  }
+  } catch (_) {}
 
-  setListeningUI(false);
+  state.listening = false;
+
+  $("mic")?.classList.remove("listening");
+  $("mic2")?.classList.remove("listening");
+
+  updateVoiceStatus("Microphone stopped.");
 }
 
-$("#micButton")?.addEventListener("click", () => {
-  if (state.listening) {
-    stopListening();
-  } else {
-    startListening();
-  }
-});
+$("mic")?.addEventListener("click", startListening);
+$("mic2")?.addEventListener("click", startListening);
 
-$("#heroVoiceButton")?.addEventListener("click", () => {
-  showPage("voice");
-  startListening();
-});
+/* ============== FILE PREVIEW =========== */
 
-/* ==========================================
-   SPEECH OUTPUT
-   ========================================== */
-
-function speakText(text) {
-  if (!("speechSynthesis" in window)) {
-    if (voiceStatus) {
-      voiceStatus.textContent =
-        "Speech output is not supported by this browser.";
-    }
-    return;
-  }
-
-  window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(
-    String(text).slice(0, 5000)
-  );
-
-  utterance.lang = navigator.language || "en-IN";
-  utterance.rate = 1;
-  utterance.pitch = 0.9;
-
-  window.speechSynthesis.speak(utterance);
-}
-
-$("#stopSpeaking")?.addEventListener("click", () => {
-  window.speechSynthesis?.cancel();
-});
-
-/* ==========================================
-   TEXT FILE READER
-   Supports plain text, TXT, JSON, CSV, JS, CSS,
-   HTML, and other text-based files.
-   This is not a full PDF/document parser.
-   ========================================== */
-
-$("#fileInput")?.addEventListener("change", async event => {
-  const file = event.target.files?.[0];
-
+async function previewFile(file) {
   if (!file) return;
 
-  const preview = $("#filePreview");
+  const preview = $("filePreview");
+  if (!preview) return;
 
-  if (file.size > 2 * 1024 * 1024) {
-    if (preview) {
-      preview.textContent =
-        "This demo supports files up to 2 MB.";
-    }
+  if (file.size > 1024 * 1024) {
+    preview.textContent =
+      "This demo supports files up to 1 MB.";
     return;
   }
 
   try {
-    const text = await file.text();
-
-    if (preview) {
-      preview.textContent =
-        `File: ${file.name}\nSize: ${file.size} bytes\n\n${text.slice(0, 30000)}`;
-    }
+    preview.textContent = await file.text();
   } catch (error) {
-    if (preview) {
-      preview.textContent = "Unable to read this file.";
-    }
+    preview.textContent = "Unable to read this file.";
   }
-});
-
-$("#analyseFileButton")?.addEventListener("click", () => {
-  const preview = $("#filePreview");
-
-  if (!preview || !preview.textContent.trim()) {
-    setNotice("Choose a text file first.", "error");
-    return;
-  }
-
-  const fileContent = preview.textContent.slice(0, 7000);
-
-  showPage("chat");
-
-  const prompt =
-    "Analyse the following file content. Summarise its main points, explain anything difficult, and identify important details:\n\n" +
-    fileContent;
-
-  if (chatInput) {
-    chatInput.value = prompt;
-    chatInput.focus();
-  }
-});
-
-/* ==========================================
-   STUDY AND CODING SHORTCUTS
-   ========================================== */
-
-$("#studyButton")?.addEventListener("click", () => {
-  showPage("chat");
-
-  if (chatInput) {
-    chatInput.value =
-      "Teach me this topic as a beginner. Explain it in small steps, then quiz me: ";
-    chatInput.focus();
-  }
-});
-
-$("#codingButton")?.addEventListener("click", () => {
-  showPage("chat");
-
-  if (chatInput) {
-    chatInput.value =
-      "Act as my coding tutor. Explain the solution simply, then show a complete example: ";
-    chatInput.focus();
-  }
-});
-
-/* ==========================================
-   SETTINGS
-   ========================================== */
-
-$("#voiceReplies")?.addEventListener("change", event => {
-  const enabled = event.target.checked;
-
-  try {
-    localStorage.setItem(
-      "emberVoiceReplies",
-      enabled ? "true" : "false"
-    );
-  } catch (error) {
-    console.warn("Settings could not be saved.");
-  }
-});
-
-try {
-  const savedVoiceReplies =
-    localStorage.getItem("emberVoiceReplies");
-
-  const voiceCheckbox = $("#voiceReplies");
-
-  if (voiceCheckbox && savedVoiceReplies !== null) {
-    voiceCheckbox.checked = savedVoiceReplies === "true";
-  }
-} catch (error) {
-  console.warn("Settings could not be loaded.");
 }
 
-/* ==========================================
-   HEALTH CHECK
-   ========================================== */
+$("fileInput")?.addEventListener("change", event => {
+  previewFile(event.target.files?.[0]);
+});
+
+/* ============== FILE AI ANALYSIS ======= */
+
+// Adds an analysis button dynamically, preserving your HTML.
+const analyseButton = document.createElement("button");
+
+analyseButton.className = "primary";
+analyseButton.textContent = "Analyse with EMBER";
+analyseButton.style.marginTop = "12px";
+
+$("filePreview")?.parentElement?.appendChild(analyseButton);
+
+analyseButton.addEventListener("click", () => {
+  const content = $("filePreview")?.textContent?.trim();
+
+  if (!content) {
+    updateVoiceStatus("Choose a text file first.");
+    return;
+  }
+
+  showPage("home");
+
+  handleCommand(
+    "Analyse this file. Summarise it, explain difficult points, " +
+    "and identify important information:\n\n" +
+    content.slice(0, 7000)
+  );
+});
+
+/* ============== BACKEND STATUS ========== */
 
 async function checkBackend() {
-  const indicator = $("#backendStatus");
+  const status = document.querySelector(".status");
 
-  if (!indicator) return;
+  if (!status) return;
 
   if (WORKER_URL.includes("YOUR-WORKER-URL")) {
-    indicator.textContent = "Backend not configured";
-    indicator.classList.remove("online");
+    status.textContent = "● BACKEND NOT CONFIGURED";
     return;
   }
 
   try {
-    const response = await fetch(`${WORKER_URL}/health`, {
-      method: "GET"
-    });
-
-    if (!response.ok) {
-      throw new Error("Health check failed");
-    }
+    const response = await fetch(`${WORKER_URL}/health`);
+    if (!response.ok) throw new Error("Health check failed");
 
     const data = await response.json();
 
-    indicator.textContent =
-      data.status === "online"
-        ? "Backend online"
-        : "Backend unavailable";
-
-    indicator.classList.toggle(
-      "online",
-      data.status === "online"
-    );
+    status.textContent = data.status === "online"
+      ? "● BACKEND ONLINE"
+      : "● BACKEND UNAVAILABLE";
 
   } catch (error) {
-    indicator.textContent = "Backend unreachable";
-    indicator.classList.remove("online");
+    status.textContent = "● BACKEND CONNECTION FAILED";
   }
 }
 
 checkBackend();
 
-/* ==========================================
-   INITIALISE
-   ========================================== */
-
-if (chatLog && !chatLog.children.length) {
-  addMessage(
-    "Welcome to EMBER AI. I'm ready to help with your questions, coding, studying, and more. What shall we work on?",
-    "assistant"
-  );
-}
-
-console.log("EMBER AI frontend initialised.");
+console.log("EMBER AI initialized.");
