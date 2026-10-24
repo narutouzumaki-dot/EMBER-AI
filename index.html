@@ -7,6 +7,8 @@
   <meta name="description" content="EMBER AI — your personal AI assistant">
   <title>EMBER AI — Kurama Intelligence</title>
   <link rel="stylesheet" href="./style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
   <script src="./script.js" defer></script>
 </head>
 <body>
@@ -33,6 +35,7 @@
     </header>
 
     <div class="content">
+      <div id="profileBar" class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;padding:12px 16px"><span id="profileLabel">Guest mode · this device</span><button class="secondary-button small-button" id="profileButton" type="button">Set profile</button></div>
       <section class="section active" id="home">
         <div class="hero">
           <div class="eyebrow"><i class="live-dot"></i> SYSTEM ONLINE</div>
@@ -42,7 +45,7 @@
           <p class="muted">Your personal intelligence system. Ready when you are.</p>
           <button class="primary-button" data-go="chat">◈ Initialize Assistant</button>
         </div>
-        <div class="section-heading"><div class="eyebrow">QUICK ACCESS</div><h2>What are we doing today?</h2></div>
+        <div class="panel" style="margin:18px 0"><strong>DEVICE STATUS</strong><p class="muted small" id="deviceInfo">Checking browser capabilities…</p><button class="secondary-button" id="refreshDevice" type="button">Refresh device status</button></div><div class="section-heading"><div class="eyebrow">QUICK ACCESS</div><h2>What are we doing today?</h2></div>
         <div class="card-grid">
           <button class="feature-card" data-go="chat"><span class="feature-icon">◈</span><h3>AI Chat</h3><p>Ask questions and explore ideas.</p><span class="card-arrow">↗</span></button>
           <button class="feature-card" data-go="voice"><span class="feature-icon">◉</span><h3>Voice Control</h3><p>Talk to your assistant.</p><span class="card-arrow">↗</span></button>
@@ -70,7 +73,7 @@
 
       <section class="section" id="files">
         <div class="page-heading"><div class="eyebrow">DATA INTELLIGENCE / 03</div><h1>FILE <span>ANALYSIS</span></h1><p class="muted">Analyze supported text-based files locally in your browser.</p></div>
-        <div class="panel"><label class="upload-zone" for="fileInput"><span class="feature-icon">⇧</span><strong>Choose a file</strong><span class="muted small">TXT, MD, CSV, JSON, JS, CSS, HTML, PY, XML, LOG</span></label><input id="fileInput" type="file" accept=".txt,.md,.csv,.json,.js,.css,.html,.py,.xml,.log"><div id="filePreview" class="file-preview"></div><label for="fileQuestion">What should EMBER analyze?</label><textarea id="fileQuestion" rows="3" placeholder="Summarize, explain, find errors…"></textarea><button class="primary-button" id="analyzeFile">Analyze File ↗</button><p class="muted small">Files are read in your browser and sent to your configured AI backend only when you press Analyze.</p></div>
+        <div class="panel"><label class="upload-zone" for="fileInput"><span class="feature-icon">⇧</span><strong>Choose a file</strong><span class="muted small">TXT, MD, CSV, JSON, JS, CSS, HTML, PY, XML, LOG, PDF, PNG, JPG, WEBP</span></label><input id="fileInput" type="file" accept=".txt,.md,.csv,.json,.js,.css,.html,.py,.xml,.log,.pdf,.png,.jpg,.jpeg,.webp"><div id="filePreview" class="file-preview"></div><label for="fileQuestion">What should EMBER analyze?</label><textarea id="fileQuestion" rows="3" placeholder="Summarize, explain, find errors…"></textarea><button class="primary-button" id="analyzeFile">Analyze File ↗</button><p class="muted small">Text and PDF text are extracted in your browser. Images use OCR if the library loads. Extracted content is sent to your AI backend only when you press Analyze. Avoid sensitive files.</p></div>
       </section>
 
       <section class="section" id="study">
@@ -85,7 +88,7 @@
 
       <section class="section" id="settings">
         <div class="page-heading"><div class="eyebrow">SYSTEM CONFIGURATION / 06</div><h1>SET<span>TINGS</span></h1><p class="muted">Configure your local experience.</p></div>
-        <div class="panel settings-list"><div class="setting-row"><div><strong>Voice replies</strong><p class="muted small">Speak EMBER's responses aloud.</p></div><input id="speechToggle" type="checkbox" aria-label="Enable spoken responses"></div><div class="setting-row"><div><strong>Remember chat on this device</strong><p class="muted small">Stores recent messages in this browser only.</p></div><input id="historyToggle" type="checkbox" aria-label="Enable local chat history"></div><div class="setting-row"><div><strong>AI backend</strong><p class="muted small">Connection status</p></div><span id="settingsBackendStatus">Checking…</span></div><button class="secondary-button" id="checkConnection">Check AI Connection</button><button class="secondary-button" id="clearHistory">Delete saved chat history</button></div>
+        <div class="panel settings-list"><div class="setting-row"><div><strong>Voice replies</strong><p class="muted small">Speak EMBER's responses aloud.</p></div><input id="speechToggle" type="checkbox" aria-label="Enable spoken responses"></div><div class="setting-row"><div><strong>Remember chat on this device</strong><p class="muted small">Stores recent messages in this browser only.</p></div><input id="historyToggle" type="checkbox" aria-label="Enable local chat history"></div><div class="setting-row"><div><strong>Profile</strong><p class="muted small">A display name saved on this device; not a secure login.</p></div><button class="secondary-button small-button" id="editProfile" type="button">Edit</button></div><div class="setting-row"><div><strong>AI backend</strong><p class="muted small">Connection status</p></div><span id="settingsBackendStatus">Checking…</span></div><button class="secondary-button" id="checkConnection">Check AI Connection</button><button class="secondary-button" id="clearHistory">Delete saved chat history</button><button class="secondary-button" id="resetProfile" type="button">Clear local profile</button></div>
         <p class="muted small">Do not enter passwords, API keys, or sensitive personal information into chat.</p>
       </section>
     </div>

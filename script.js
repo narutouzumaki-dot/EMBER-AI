@@ -187,29 +187,44 @@ function startListening(destination) {
   catch { if ($("voiceStatus")) $("voiceStatus").textContent = "Microphone is already active. Try again shortly."; }
 }
 
-function handleFileSelect(event) {
+async function handleFileSelect(event) {
   const file = event.target.files?.[0];
-  selectedFileText = "";
-  selectedFileName = "";
+  selectedFileText = ""; selectedFileName = "";
   if (!file) return;
-  if (!/\.(txt|md|csv|json|js|css|html|py|xml|log)$/i.test(file.name)) {
-    if ($("filePreview")) $("filePreview").textContent = "Unsupported file type. Choose a text-based file.";
-    event.target.value = "";
-    return;
+  if (file.size > 10 * 1024 * 1024) {
+    if ($("filePreview")) $("filePreview").textContent = "File is too large. Maximum supported size is 10 MB.";
+    event.target.value = ""; return;
   }
-  if (file.size > 500000) {
-    if ($("filePreview")) $("filePreview").textContent = "File is too large. Maximum supported size is 500 KB.";
-    event.target.value = "";
-    return;
+  selectedFileName = file.name;
+  const ext = file.name.split(".").pop().toLowerCase();
+  try {
+    if (["txt","md","csv","json","js","css","html","py","xml","log"].includes(ext)) {
+      selectedFileText = await file.text();
+      if (selectedFileText.includes("\u0000")) throw new Error("This does not appear to be a text file.");
+    } else if (ext === "pdf") {
+      if (!window.pdfjsLib) throw new Error("PDF reader library did not load. Check your internet connection and retry.");
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      const pdf = await window.pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+      const chunks = [];
+      for (let i = 1; i <= Math.min(pdf.numPages, 30); i++) {
+        const page = await pdf.getPage(i); const content = await page.getTextContent();
+        chunks.push(`PAGE ${i}\n` + content.items.map(item => item.str).join(" "));
+      }
+      selectedFileText = chunks.join("\n\n");
+      if (!selectedFileText.trim()) throw new Error("No selectable text found. This may be a scanned PDF; try an image or OCR app.");
+      if (pdf.numPages > 30) selectedFileText += "\n[Only first 30 pages extracted]";
+    } else if (["png","jpg","jpeg","webp"].includes(ext)) {
+      if (!window.Tesseract) throw new Error("Image OCR library did not load. Check your internet connection and retry.");
+      if ($("filePreview")) $("filePreview").textContent = "Reading image text with OCR… please wait.";
+      const result = await window.Tesseract.recognize(file, "eng");
+      selectedFileText = result.data.text || "";
+      if (!selectedFileText.trim()) throw new Error("No readable text found in this image.");
+    } else throw new Error("Unsupported file type. Choose text, PDF, PNG, JPG, or WEBP.");
+    if ($("filePreview")) $("filePreview").textContent = `Ready: ${file.name} · ${selectedFileText.length.toLocaleString()} extracted characters`;
+  } catch (error) {
+    selectedFileText = ""; selectedFileName = "";
+    if ($("filePreview")) $("filePreview").textContent = error.message || "Could not read this file.";
   }
-  file.text().then(text => {
-    if (text.includes("\u0000")) throw new Error("This does not appear to be a text file.");
-    selectedFileText = text;
-    selectedFileName = file.name;
-    if ($("filePreview")) $("filePreview").textContent = `Selected ${file.name} · ${text.length} characters`;
-  }).catch(error => {
-    if ($("filePreview")) $("filePreview").textContent = error.message || "Could not read file.";
-  });
 }
 
 function analyzeFile() {
@@ -250,6 +265,34 @@ async function checkBackend() {
   }
 }
 
+const PROFILE_KEY = "ember-ai-local-profile-v1";
+function updateProfile() {
+  let profile = {};
+  try { profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}"); } catch {}
+  if ($("profileLabel")) $("profileLabel").textContent = profile.name ? `Profile: ${profile.name} · stored on this device` : "Guest mode · this device";
+  if ($("profileButton")) $("profileButton").textContent = profile.name ? "Change profile" : "Set profile";
+}
+function editProfile() {
+  const current = (() => { try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}").name || ""; } catch { return ""; } })();
+  const name = window.prompt("Choose a display name (not a password):", current);
+  if (name === null) return;
+  const clean = name.trim().slice(0, 40);
+  if (!clean) { localStorage.removeItem(PROFILE_KEY); }
+  else localStorage.setItem(PROFILE_KEY, JSON.stringify({name: clean}));
+  updateProfile();
+}
+function refreshDeviceInfo() {
+  const el = $("deviceInfo"); if (!el) return;
+  const features = [
+    `Browser: ${navigator.userAgentData?.brands?.map(x => x.brand).join(", ") || navigator.appName || "Web browser"}`,
+    `Platform: ${navigator.userAgentData?.platform || navigator.platform || "unknown"}`,
+    `Speech input: ${!!(window.SpeechRecognition || window.webkitSpeechRecognition) ? "supported" : "not detected"}`,
+    `Speech output: ${"speechSynthesis" in window ? "supported" : "not detected"}`,
+    `Online: ${navigator.onLine ? "yes" : "no"}`
+  ];
+  el.textContent = features.join(" · ");
+}
+
 function init() {
   document.querySelectorAll("[data-page]").forEach(button => button.addEventListener("click", () => showPage(button.dataset.page)));
   document.querySelectorAll("[data-go]").forEach(button => button.addEventListener("click", event => {
@@ -279,6 +322,10 @@ function init() {
     if (event.target.checked) persistHistory();
   });
   $("clearHistory")?.addEventListener("click", clearSavedHistory);
+  $("profileButton")?.addEventListener("click", editProfile);
+  $("editProfile")?.addEventListener("click", editProfile);
+  $("resetProfile")?.addEventListener("click", () => { if (confirm("Clear the local display profile?")) { localStorage.removeItem(PROFILE_KEY); updateProfile(); } });
+  $("refreshDevice")?.addEventListener("click", refreshDeviceInfo);
   $("fileInput")?.addEventListener("change", handleFileSelect);
   $("analyzeFile")?.addEventListener("click", analyzeFile);
   $("startStudy")?.addEventListener("click", startStudy);
@@ -287,6 +334,7 @@ function init() {
     if (event.key === "Escape") $("sidebar")?.classList.remove("open");
   });
   initPrefs();
+  updateProfile(); refreshDeviceInfo();
   updateClock();
   setInterval(updateClock, 30000);
   checkBackend();
